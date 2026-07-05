@@ -1,0 +1,277 @@
+msg.hasMedia >> t or f
+
+--------------------------------
+    hasQuotedMsg mean has replay?
+if (msg.hasQuotedMsg) 
+    get the msg 
+    const quotedMsg = await msg.getQuotedMessage();
+
+-------------------------------
+
+node DataBase/database.js
+
+node index.js
+console.log(msg.from);
+
+
+
+
+------First V1.0----------
+
+//data base
+const notesRepo = require('./DataBase/notes');
+const db = require('./DataBase/database');
+//file
+const fs = require('fs');
+//whatsapp
+const { Client, LocalAuth ,MessageMedia} = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+//commands
+const { handleSaveCommand , handleGetCommand , handleListNotesCommand ,handleDeleteNoteCommand} = require('./notes/noteCommands');
+const { handleKickCommand ,handleSuppressCommand} = require('./commands/kickCommand');
+//owner id
+const OWNER = '966557752352@c.us';
+
+const client = new Client({
+    authStrategy: new LocalAuth(), // يحفظ الجلسة عشان ما تعيد QR كل مرة
+    puppeteer: {
+        executablePath: '/usr/bin/chromium-browser',
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
+});
+
+// يظهر QR أول مرة
+client.on('qr', qr => {
+    console.log('🔗 امسح الـ QR من واتساب:');
+    qrcode.generate(qr, { small: true });
+});
+
+// جاهز
+client.on('ready', () => {
+    console.log('✅ البوت شغال!');
+});
+
+// يرد على الرسائل
+client.on('message', async msg => {
+    //مسج هو اوبجيكت
+    //نص الرسالة
+    const text = msg.body.toLowerCase();
+    // console.log(msg.from);
+    // console.log(msg.author);
+
+    if (msg.body.startsWith('!احفظ')) {
+        await handleSaveCommand(msg, notesRepo);
+    //     const chat = await msg.getChat();
+
+    //     if (!chat.isGroup) {
+    //         return msg.reply('هذا الأمر للقروبات فقط');
+    //     }
+
+    //     if (msg.hasQuotedMsg) {
+    //         //["!save", "java"] example: !save java
+    //         const shortCut = msg.body.split(' ')[1];
+    //         const replayMsg = await msg.getQuotedMessage();   
+
+    //         if (replayMsg.hasMedia) {
+    //             const media = await replayMsg.downloadMedia();
+
+    //             let fileName = media.filename || `${Date.now()}.bin`;
+    //             const filePath = `files/${fileName}`;
+
+    //             fs.writeFileSync(filePath, media.data, 'base64');
+
+    //             notesRepo.addFile(msg.from, shortCut, filePath);
+    //         }
+    //          else {
+    //             notesRepo.addNote(msg.from,shortCut, replayMsg.body);
+    //         }
+
+    //         msg.reply(`تم حفظ الملاحظة ${shortCut}`);
+    //     } else {
+    //         msg.reply('لازم ترد على رساله عشان احفظها');
+    //     }
+    // 
+    }
+
+    if (text.startsWith('!جيب')) {
+        await handleGetCommand(msg, notesRepo);
+        // const chat = await msg.getChat();
+
+        // if (!chat.isGroup) {
+        //     return msg.reply('هذا الأمر للقروبات فقط');
+        // }
+        // const shortCut = text.split(' ')[1];
+        // const note = notesRepo.getNote(msg.from,shortCut);
+
+        // if (!note) {
+        //     return msg.reply('ملاحظة غير موجودة');
+        // }
+
+        // if (note.file_path) {
+        //     try {
+        //         const media = MessageMedia.fromFilePath(note.file_path);
+
+        //         msg.reply(media, undefined, {
+        //             sendMediaAsDocument: true
+        //         });
+
+        //     } catch (err) {
+        //         console.log(err);
+        //         msg.reply("صار خطأ في إرسال الملف");
+        //     }
+
+        // } 
+        // // إذا نص
+        // else if (note.TheNote) {
+        //     msg.reply(note.TheNote);
+        // } 
+        // else {
+        //     msg.reply("الملاحظة فاضية");
+        // }
+    }
+    
+
+    if (msg.body === '!الملاحظات') {
+        await handleListNotesCommand(msg, notesRepo);
+        // const chat = await msg.getChat();
+
+        // if (!chat.isGroup) {
+        //     return msg.reply('هذا الأمر للقروبات فقط');
+        // }
+
+
+        // const notes = notesRepo.getAllNotes(msg.from);
+
+        // const message = notes
+        //     .map(n => `• ${n.short_cut}`)
+        //     .join('\n');
+
+        // msg.reply(message);
+    }
+
+    if (msg.body.startsWith('!احذف')) {
+        await handleDeleteNoteCommand(msg, notesRepo);
+        // const chat = await msg.getChat();
+
+        // if (!chat.isGroup) {
+        //     return msg.reply('هذا الأمر للقروبات فقط');
+        // }
+        // const shortCut = msg.body.split(' ')[1];
+
+        // notesRepo.deleteNote(msg.from,shortCut);
+
+        // msg.reply("تم الحذف");
+    }
+
+
+if (msg.body === '!اطرد') {
+    await handleKickCommand(msg);
+    // const chat = await msg.getChat();
+
+    // if (!chat.isGroup) {
+    //     return msg.reply('هذا الأمر للقروبات فقط');
+    // }
+
+    // const hasPermission = await isAuthorized(msg, chat);
+    // if (!hasPermission) {
+    //     return msg.reply('فقط الأدمن يقدر يطرد');
+    // }
+
+    // if (!msg.hasQuotedMsg) {
+    //     return msg.reply('رد على رسالة الشخص');
+    // }
+
+    // const quoted = await msg.getQuotedMessage();
+
+    // const quotedContact = await quoted.getContact();
+    // const targetId = quotedContact.id._serialized;
+
+    // if (!targetId) {
+    //     return msg.reply('ما قدرت أحدد الشخص');
+    // }
+
+    // // حماية العم من الطرد
+    // if (targetId === OWNER) {
+    //     return msg.reply('مايمديك تطرد عمك');
+    // }
+
+    // try {
+    //     await chat.removeParticipants([targetId]);
+    //     msg.reply('تم الطرد');
+    // } catch (err) {
+    //     console.log(err);
+    //     msg.reply('فشل الطرد، تأكد أن البوت أدمن');
+    // }
+}
+
+if (msg.body === '!اقمع') {
+
+    await handleSuppressCommand(msg);
+    // const chat = await msg.getChat();
+
+    // if (!chat.isGroup) {
+    //     return msg.reply('هذا الأمر للقروبات فقط');
+    // }
+
+    // const hasPermission = await isAuthorized(msg, chat);
+    // if (!hasPermission) {
+    //     return msg.reply('فقط الأدمن يقدر يطرد');
+    // }
+
+    // if (!msg.hasQuotedMsg) {
+    //     return msg.reply('رد على رسالة الشخص');
+    // }
+
+    // const quoted = await msg.getQuotedMessage();
+
+    // // ✅ التعديل هنا: جلب جهة اتصال صاحب الرسالة المقتبسة لضمان الآيدي 100%
+    // const quotedContact = await quoted.getContact();
+    // const targetId = quotedContact.id._serialized;
+
+    // if (!targetId) {
+    //     return msg.reply('ما قدرت أحدد الرسالة');
+    // }
+
+    // // التحقق الصارم من العم
+    // if (targetId === OWNER) {
+    //     return msg.reply('كيف تقمع عمك؟');
+    // }
+
+    // try {
+    //     await quoted.delete(true); // حذف عند الجميع (قمع)
+    //     msg.reply('تم القمع');
+    // } catch (err) {
+    //     console.log(err);
+    //     msg.reply('صار خطأ، تأكد أن البوت أدمن');
+    // }
+}
+
+
+
+
+});
+
+
+async function isAuthorized(msg, chat) {
+    try {
+        const contact = await msg.getContact();
+        const senderId = contact.id._serialized; 
+
+        const participants = chat.participants;
+        const sender = participants.find(p => p.id._serialized === senderId);
+        
+        const isAdmin = sender ? (sender.isAdmin || sender.isSuperAdmin) : false;
+        const isOwner = (senderId === OWNER);
+
+        // ترجع true إذا كان المرسل أدمن أو العم، وترجع false إذا كان عضو عادي
+        return isAdmin || isOwner;
+    } catch (err) {
+        console.log("خطأ في التحقق من الصلاحيات:", err);
+        return false; // في حال صار خطأ نعتبره ماله صلاحية لزيادة الأمان
+    }
+}
+
+client.initialize();
+
+-------END Of First V1.0---------
