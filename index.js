@@ -20,6 +20,7 @@ const COOLDOWN_SECONDS = 5; // مدة التبريد بالثواني (تقدر 
 //     }
 // });
 
+
 const client = new Client({
     authStrategy: new LocalAuth({
         clientId: "main",
