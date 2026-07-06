@@ -23,18 +23,17 @@ const COOLDOWN_SECONDS = 5; // مدة التبريد بالثواني (تقدر 
 const client = new Client({
     authStrategy: new LocalAuth({
         clientId: "main",
+        dataPath: "./.wwebjs_auth"
     }),
     puppeteer: {
         executablePath: process.env.CHROME_BIN || "/usr/bin/chromium",
         headless: true,
-        userDataDir: "/tmp/chromium-profile",
         args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
-            "--no-zygote",
-            "--single-process"
+            "--no-zygote"
         ]
     }
 });
