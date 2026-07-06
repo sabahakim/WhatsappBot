@@ -27,12 +27,12 @@ const client = new Client({
     puppeteer: {
         executablePath: process.env.CHROME_BIN || "/usr/bin/chromium",
         headless: true,
+        userDataDir: "/tmp/chromium-profile",
         args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
-            "--disable-software-rasterizer",
             "--no-zygote",
             "--single-process"
         ]
