@@ -19,7 +19,22 @@ const COOLDOWN_SECONDS = 5; // مدة التبريد بالثواني (تقدر 
 //         args: ['--no-sandbox', '--disable-setuid-sandbox']
 //     }
 // });
+const fs = require('fs');
+const path = require('path');
 
+// امسح ملفات القفل القديمة من محاولات فاشلة سابقة
+const sessionPath = path.join(__dirname, '.wwebjs_auth', 'session-main');
+['SingletonLock', 'SingletonCookie', 'SingletonSocket'].forEach(fileName => {
+    const filePath = path.join(sessionPath, fileName);
+    if (fs.existsSync(filePath)) {
+        try {
+            fs.unlinkSync(filePath);
+            console.log(`تم مسح ملف قفل قديم: ${fileName}`);
+        } catch (err) {
+            console.log(`تعذر مسح ${fileName}:`, err.message);
+        }
+    }
+});
 
 const client = new Client({
     authStrategy: new LocalAuth({
