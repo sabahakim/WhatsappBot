@@ -1,9 +1,6 @@
 FROM node:22-bookworm
 
-ENV PUPPETEER_SKIP_DOWNLOAD=true
-
 RUN apt-get update && apt-get install -y \
-    chromium \
     fonts-liberation \
     ca-certificates \
     wget \
@@ -50,8 +47,13 @@ COPY package*.json ./
 
 RUN npm install
 
+# نزّل نسخة Chrome قديمة متوافقة مع معالجات بدون AVX2
+RUN npx puppeteer browsers install chrome@121.0.6167.85 --path /opt/chrome-old
+
 COPY . .
 
 RUN mkdir -p data/files
+
+ENV CHROME_BIN=/opt/chrome-old/chrome/linux-121.0.6167.85/chrome-linux64/chrome
 
 CMD ["npm", "start"]
