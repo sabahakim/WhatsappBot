@@ -41,6 +41,7 @@ const client = new Client({
     clientId: "main"}),
     puppeteer: {
         executablePath: process.env.CHROME_BIN || "/usr/bin/chromium",
+        protocolTimeout: 120000,
         headless: true,
         args: [
             '--no-sandbox',
