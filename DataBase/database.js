@@ -6,7 +6,7 @@ db.prepare(`
 CREATE TABLE IF NOT EXISTS notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     chat_id TEXT NOT NULL,
-    short_cut TEXT UNIQUE,
+    short_cut TEXT,
     TheNote TEXT,
     file_path TEXT
 )
