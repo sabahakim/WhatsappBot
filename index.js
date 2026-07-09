@@ -39,6 +39,7 @@ const sessionPath = path.join(__dirname, '.wwebjs_auth', 'session-main');
 const client = new Client({
     authStrategy: new LocalAuth({
     clientId: "main"}),
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
     puppeteer: {
         executablePath: process.env.CHROME_BIN || "/usr/bin/chromium",
         protocolTimeout: 120000,
@@ -50,7 +51,6 @@ const client = new Client({
         ]
     }
 });
-
 // يظهر QR أول مرة
 client.on('qr', qr => {
     console.log('🔗 امسح الـ QR من واتساب:');
@@ -122,8 +122,14 @@ client.on('message', async msg => {
 
 });
 
-client.initialize();
+function startClient() {
+    client.initialize().catch(err => {
+        console.error("فشل تشغيل العميل، بحاول مرة ثانية بعد 10 ثواني:", err.message);
+        setTimeout(startClient, 10000);
+    });
+}
 
+startClient();
 process.on("unhandledRejection", (err) => {
     console.error("Unhandled Promise:", err);
 });
